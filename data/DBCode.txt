@@ -1,0 +1,83 @@
+#create database tables
+CREATE TABLE student(
+student_id           INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+student_name     VARCHAR(255),
+home_country    VARCHAR(255),
+birth_date           Date,
+admission_year   YEAR
+);
+CREATE TABLE contact_information(
+CI_id               INT AUTO_INCREMENT PRIMARY KEY,
+email               VARCHAR(255),
+phone              VARCHAR(255),
+student_id       INT NOT NULL,
+FOREIGN KEY (student_id) REFERENCES student(student_id)
+);
+CREATE TABLE scholarship(
+scholarship_id    INT PRIMARY KEY AUTO_INCREMENT,
+amount               INT,
+semester            VARCHAR(255), 
+student_id          INT NOT NULL,
+FOREIGN KEY (student_id) REFERENCES student(student_id)
+);
+CREATE Table specialization(
+specialization_id         INT PRIMARY KEY AUTO_INCREMENT,
+specialization_name    VARCHAR(255),
+level                            VARCHAR(255),
+complete_year            YEAR,
+student_id                   INT NOT NULL,
+FOREIGN KEY (student_id) REFERENCES student(student_id)
+);
+
+#set infile
+SET GLOBAL local_infile=1;
+quit;
+mysql --local-infile=1 -u root -p
+password: Current-Root-Password
+
+#load data
+LOAD DATA LOCAL INFILE '/Users/CP363/assignement/all_data/student.csv' 
+INTO TABLE student
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'; 
+
+LOAD DATA LOCAL INFILE '/Users/CP363/assignement/all_data/contact_information.csv' 
+INTO TABLE contact_information
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'; 
+
+LOAD DATA LOCAL INFILE '/Users/CP363/assignement/all_data/scholarship.csv' 
+INTO TABLE scholarship
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+LOAD DATA LOCAL INFILE '/Users/CP363/assignement/all_data/specialization.csv'
+INTO TABLE specialization
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+//new login database
+-create database tables
+//identity with admin, student, advisor, professor, service
+CREATE TABLE users(
+user_account      VARCHAR(255) PRIMARY KEY NOT NULL,
+user_identity      VARCHAR(255),
+user_password   VARCHAR(255)
+);
+
+-load data
+LOAD DATA LOCAL INFILE '/Users/liuzehao/users.csv'
+INTO TABLE users
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+
+//test case- if followed works, mean databases installed sucessfully
+SELECT * FROM student;
+SELECT * FROM scholarship;
+SELECT * FROM contact_information;
+SELECT * FROM specialization;
