@@ -7,13 +7,19 @@
 </head>
 <body>
 <?php require_once "func/_function.php";?> 
+
+
     <h1>Student information management system</h1>
     <h3>Log in page</h3>
     <!-- <h3> userType: admin, student, advisor, professor, service -->
     
     <?php //destroy the orginal session to improve security
     logout();
+    
+    session_start();
+    $_SESSION['logged']=0;
     ?>
+
 
     <form  method="post" action="index.php">
         <div class="imgcontainer">
@@ -35,10 +41,10 @@
             <br>
             <!-- javascript:alert("hacked") -->
             <label for="uname"><b>Username:</b></label>
-            <input id="uname" type="text" placeholder="Enter Username" name="uname" value="" required>
+            <input id="uname" type="text" placeholder="Enter Username" name="uname" value="Jialong" required>
 
             <label for="psw"><b>Password:</b></label>
-            <input type="password" placeholder="Enter Password" id="psw" name="psw" value="what do you want?" required>
+            <input type="password" placeholder="Enter Password" id="psw" name="psw" value="666" required>
 
             <p id="demo" value="what's up"></p>
             

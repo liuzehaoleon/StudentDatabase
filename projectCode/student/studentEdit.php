@@ -1,14 +1,9 @@
-<?php
-session_start();
-if(!isset($_SESSION['logged'])) 
-  header("Location: "."../func/logOut.php");
-?>
-
 <html>
 <body>
 
 <?php require_once "../func/connect.php";?>
 <?php require_once "../func/preState.php";?>
+<?php require_once "../func/checkState.php";?>
 
 <p>Edit data for student</p>
 <form method="post">
@@ -67,10 +62,10 @@ if(!empty($_POST['sid'])){//not run until user did enter any input and recall th
         if ($result === TRUE) {
             echo "Table are edited successfully";
         } else {
-            echo "Error editing table: " . $conn->erro;
+            echo "Error editing table: " . $conn->error;
         }
     }
-}    
+}
 ?>
 
 <?php

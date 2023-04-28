@@ -8,74 +8,97 @@
 </head>
 <body>
 <?php require_once "func/_function.php";?> 
+<?php require_once "func/connect.php";?>
 
     <?php  //set global variable and session value
     session_start();
-    if (isset($_POST['type'])){
+    //auto logOut Failed
+    
+    // if (isset($_SESSION['last_activity']) && time() - $_SESSION['last_activity'] > 3) {
+    //     // last request was more than 15 minutes ago
+    //     session_unset(); // unset $_SESSION variable for the run-time
+    //     session_destroy(); // destroy session data in storage
+    //     header("Location: " . "logIn.php"); // redirect to login page
+    //   }
+    //   $_SESSION['last_activity'] = time(); // update last activity time stamp
+
+    if (isset($_POST['type'])){ //a kind of means user come from login pages
+        //session remember this since user go back to index page each row need this
         $_SESSION["isAdmin"]=$_POST['type']=="admin";
         $_SESSION["isStudent"]=$_POST['type']=="student";
         $_SESSION["isAdvisor"]=$_POST['type']=="advisor";
         $_SESSION["isProfessor"]=$_POST['type']=="professor";
         $_SESSION["isService"]=$_POST['type']=="service";
         $_SESSION["logged"]=true;
-        if($_POST['type']=='')
+        if($_POST['type']==''||$_POST["uname"]=='') //no identity enter will no be accepted
             header("Location: " . "func/logOut.php");
     }
-    $isAdmin=$_SESSION["isAdmin"];
-    $isStudent=$_SESSION["isStudent"];
-    $isAdvisor=$_SESSION["isAdvisor"];
-    $isProfessor=$_SESSION["isProfessor"];
-    $isService=$_SESSION["isService"];
     ?>
 
-    <?php // filt login first
-    if(isset($_POST['login'])){ 
-        //we need to remeber user name but need to verfiy their password, not need keep remember their password
-        // if(isset($_COOKIE["uname"])) { //上一个用户的信息
-        //     setcookie("uname", "", time()-3);
-        //     echo $_COOKIE["uname"];}
-        // setcookie('uname',$_POST['uname'],time()+10); //6 minute to expire - 10 s to expire
-        //initialize timer as we login
-        $_SESSION["uname"]=filter($_POST["uname"]);
+    <!-- 2. Sanitize user input: filter login input -->
+    <?php 
+    if(isset($_POST['login'])){
+        //remember user account/name into session, not the password
+        $_SESSION["uname"]=filter($_POST["uname"]); 
         $_POST["psw"]=filter($_POST["psw"]);
-        // $_POST["psw"]=filter($_POST["psw"]);
     }
-    if(!isset($_POST['timer']))
-        $_SESSION["timer"]=time();
-    timer($_SESSION["timer"]);
     ?>
-    <h1>Student information management system</h1>
-    <?php
-    if(!isset($_SESSION["uname"])){
-        header("Location: " . "func/logOut.php");
+
+    <!-- 1. Use parameterized queries or prepared statements -->
+    <?php //compare password and identity by PK account name
+    if(isset($_POST['uname'])==1){ //that means user come from login page
+        $check=$conn->prepare("SELECT * FROM users WHERE user_account=?"); // for demo we take out prepare statement
+        $check->bind_param("s",$_POST["uname"]);
+        $result=$check->execute();
+        $allRows=$check->get_result();
+
+        $isValidAccount=mysqli_num_rows($allRows);
+        if(!$isValidAccount)
+            header("Location: " . "func/logOut.php");
+        else
+        $row = mysqli_fetch_row($allRows);
+        // echo $row[0],$row[1];
+        if ($row[1]!= $_POST['type'] || $row[2]!=$_POST["psw"])
+            header("Location: " . "func/logOut.php");
     }
+    ?>
+
+    <h1>Student information management system</h1>
+
+    <?php 
+    if (!$_SESSION['logged'])
+        header("Location: " . "func/logIn.php");
+    ?>
+
+    <?php    
     echo "Welcome, ".$_SESSION["uname"];
     echo "<br>";
-    if (empty($_SESSION['pid'])){
-    $_SESSION['pid'] = 1;
-    }
-    else{
-    $_SESSION['pid'] ++;
-    }
+
+    //calculate number of times user visits
+    if (empty($_SESSION['pid']))
+        $_SESSION['pid'] = 1;
+    else
+        $_SESSION['pid'] ++;
     echo "this is your ".$_SESSION['pid']." times visit this page";
     ?>
 
+    <!-- 3. Use least privilege access: different identity have differece access -->
     <h3>Student</h3>
     <a href="student/studentRender.php">show student</a><br/>  
     
-    <?php if($isAdvisor||$isAdmin):?>
+    <?php if($_SESSION["isAdvisor"]||$_SESSION["isAdmin"]||$_SESSION["isProfessor"]):?>
     <a href="student/studentInsert.php">add student</a><br/>   
     <a href="student/studentDelete.php">delete student</a><br/> 
     <?php endif; ?>
 
-    <?php if($isStudent||$isAdmin):?>
+    <?php if($_SESSION["isStudent"]||$_SESSION["isAdmin"]):?>
     <a href="student/studentEdit.php">edit student</a><br/>
     <?php endif; ?>
 
     <h3>Student Contact Information</h3>
     <a href="CI/CIRender.php">show CI</a><br/>
     
-    <?php if($isStudent||$isAdmin):?>
+    <?php if($_SESSION["isStudent"]||$_SESSION["isAdmin"]):?>
     <a href="CI/CIInsert.php">add CI</a><br/> 
     <a href="CI/CIDelete.php">delete CI</a><br/>   
     <a href="CI/CIEdit.php">edit CI</a><br/>
@@ -84,18 +107,18 @@
     <h3>Specification</h3>
     <a href="SL/SLRender.php">show specification</a><br/>
 
-    <?php if($isAdvisor||$isAdmin):?>
+    <?php if($_SESSION["isAdvisor"]||$_SESSION["isAdmin"]):?>
     <a href="SL/SLInsert.php">add specification</a><br/>
     <a href="SL/SLDelete.php">delete specification</a><br/>
     <a href="SL/SLEdit.php">edit specification</a><br/>
     <?php endif; ?>
 
     <h3>Scholoarship</h3>
-    <?php if($isStudent||$isService||$isAdmin):?>
+    <?php if($_SESSION["isStudent"]||$_SESSION["isService"]||$_SESSION["isAdmin"]):?>
     <a href="SS/SSRender.php">show scholoarship</a><br/>
     <?php endif; ?>
 
-    <?php if($isService||$isAdmin):?>
+    <?php if($_SESSION["isService"]||$_SESSION["isAdmin"]):?>
     <a href="SS/SSInsert.php">add scholoarship</a><br/>
     <a href="SS/SSDelete.php">delete scholoarship</a><br/>   
     <a href="SS/SSEdit.php">edit scholoarship</a><br/>
@@ -105,10 +128,8 @@
     <br>
     <a href="logIn.php">log out</a><br/>
 
-    <!-- <script>
-        window.onbeforeunload = function () {
-    return "Do you really want to close?";
-    };
-    </script> -->
+    <!-- 4. Limit error messages: each action doesnot raise error
+    & cannot login without certificated identity (no session id): can not direct go to page without session[logged]
+    & user logout cleared all session imformation -->
     </body>
 </html>

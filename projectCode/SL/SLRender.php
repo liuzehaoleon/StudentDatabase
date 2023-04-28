@@ -1,11 +1,6 @@
-<?php
-session_start();
-if(!isset($_SESSION['logged'])) 
-  header("Location: "."../func/logOut.php");
-?>
-
 <?php require_once "../func/connect.php";?>
 <?php require_once "../func/preState.php";?>
+<?php require_once "../func/checkState.php";?>
 
 <p>Showing data in specialization table</p>
 <form method="post">
@@ -22,6 +17,7 @@ if(!empty($_POST['slid'])){//not run until user did enter any input and recall t
     // $allRows = $conn->query($rowForUpdate); or can be write in this format
     $result=$slSearch->execute();
     $allRows=$slSearch->get_result();
+    // $allRows = mysqli_query($conn,$slSearch);
 
     //$result -> num_rows; or can be write in this format
     $isValidSlid=mysqli_num_rows($allRows);

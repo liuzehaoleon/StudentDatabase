@@ -1,11 +1,6 @@
-<?php
-session_start();
-if(!isset($_SESSION['logged'])) 
-  header("Location: "."../func/logOut.php");
-?>
-
 <?php require_once "../func/connect.php";?>
 <?php require_once "../func/preState.php";?>
+<?php require_once "../func/checkState.php";?>
 
 <p>Showing data in scholarship table</p>
 <form method="post">

@@ -1,15 +1,9 @@
-<?php
-session_start();
-if(!isset($_SESSION['logged'])) 
-  header("Location: "."../func/logOut.php");
-?>
-
-
 <html>
 <body>
 
 <?php require_once "../func/connect.php";?>
 <?php require_once "../func/preState.php";?>
+<?php require_once "../func/checkState.php";?>
 
 <p>Edit data for specialization</p>
 <form method="post">
@@ -54,7 +48,7 @@ if(!empty($_POST['slid'])){//not run until user did enter any input and recall t
         if ($result === TRUE) {
             echo "Table are edited successfully";
         } else {
-            echo "Error editing table: " . $conn->erro;
+            echo "Error editing table: " . $conn->error;
         }
     }
 }    
