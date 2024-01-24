@@ -18,5 +18,4 @@ Fifth, after login, you can access any utilities functions in index.php page.
 ## Author
 - Zehao Liu
 - Jialong Zhang
-- Huiqiao Yang
 
